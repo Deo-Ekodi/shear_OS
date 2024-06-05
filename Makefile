@@ -1,7 +1,6 @@
 FILES = ./build/kernel.asm.o
 
 all: ./bin/boot.bin ./bin/kernel.bin
-	rm -r ./bin/os.bin
 	dd if=./bin/boot.bin >> ./bin/os.bin
 	dd if=./bin/kernel.bin >> ./bin/os.bin
 	dd if=/dev/zero bs=512 count=100 >> ./bin/os.bin
@@ -19,4 +18,4 @@ all: ./bin/boot.bin ./bin/kernel.bin
 clean:
 	rm -r bin/*
 	rm -r ${FILES}
-	rm -r ./build/kernelfull.o
+	rm -r build/*

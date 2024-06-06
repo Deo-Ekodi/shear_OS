@@ -50,6 +50,12 @@ void print(const char* str)
 
 void terminal_writechar(char c, char col)
 {
+    if(c == '\n')
+    {
+        ++terminal_col;
+        terminal_col = 0;
+        return;
+    }
     terminal_putchar(terminal_col, terminal_row, c, col);
     ++terminal_col;
 

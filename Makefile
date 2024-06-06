@@ -22,5 +22,5 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 clean:
 	rm -r bin/*
-	rm -r ${FILES}
 	rm -r build/*
+# rm -r ${FILES}

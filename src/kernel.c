@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "idt/idt.h"
 
 
 uint16_t* video_mem = 0;
@@ -88,4 +89,5 @@ void kernel_main(void)
     // terminal_writechar('B', 10);
 
     print("Hello Kernel World!!");
+    idt_init();
 }

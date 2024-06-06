@@ -18,4 +18,10 @@ struct idtr_desc
     uint32_t base;
 } __attribute__((packed));
 
+
+
+void idt_zero(void);
+void idt_set(int interrupt_no, void* address);
+void idt_init(void);
+
 #endif

@@ -12,6 +12,7 @@ void idt_zero(void)
 {
     print("Divide by zero error. \n");
 }
+
 void idt_set(int interrupt_no, void* address)
 {
     struct idt_desc* desc = &idt_descriptors[interrupt_no];

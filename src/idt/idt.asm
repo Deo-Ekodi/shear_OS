@@ -1,7 +1,11 @@
 section .asm
 
-extern int21_handler
+extern no_interrupt_handler
+extern int21h_handler
+
+global no_interrupt
 global idt_load
+global int21h
 
 idt_load:
     push ebp;
@@ -15,7 +19,15 @@ idt_load:
 int21h:
     cli
     pushad
-    call int21_handler
+    call int21h_handler
+    popad
+    sti
+    iret
+
+no_interrupt:
+    cli
+    pushad
+    call no_interrupt_handler
     popad
     sti
     iret

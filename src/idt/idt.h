@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+
 struct idt_desc
 {
     uint16_t offset_1; // offset bts 0-15
@@ -23,5 +24,7 @@ struct idtr_desc
 void idt_zero(void);
 void idt_set(int interrupt_no, void* address);
 void idt_init(void);
+void enable_interrupts();
+void disable_interrupts();
 
 #endif

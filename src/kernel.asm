@@ -31,8 +31,6 @@ _start:
     mov al, 000000001b
     out 0x21, al
 
-    ; enable interrupts
-    sti
     
     call kernel_main
     jmp $

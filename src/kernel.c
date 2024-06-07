@@ -1,95 +1,83 @@
 #include "kernel.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "idt/idt.h"
-#include "io/io.h"
+#include "memory/heap/kheap.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
 uint16_t terminal_col = 0;
 
-void terminal_initialize(void)
+uint16_t terminal_make_char(char c, char colour)
 {
-    terminal_col = terminal_row = 0;
+    return (colour << 8) | c;
+}
 
-    video_mem = (uint16_t*)(0xB8000);
+void terminal_putchar(int x, int y, char c, char colour)
+{
+    video_mem[(y * VGA_WIDTH) + x] = terminal_make_char(c, colour);
+}
 
-    for(int y = 0; y < VGA_HEIGHT; ++y)
+void terminal_writechar(char c, char colour)
+{
+    if (c == '\n')
     {
-        for (int x = 0; x < VGA_WIDTH; ++x)
+        terminal_row += 1;
+        terminal_col = 0;
+        return;
+    }
+
+    terminal_putchar(terminal_col, terminal_row, c, colour);
+    terminal_col += 1;
+    if (terminal_col >= VGA_WIDTH)
+    {
+        terminal_col = 0;
+        terminal_row += 1;
+    }
+}
+void terminal_initialize()
+{
+    video_mem = (uint16_t*)(0xB8000);
+    terminal_row = 0;
+    terminal_col = 0;
+    for (int y = 0; y < VGA_HEIGHT; y++)
+    {
+        for (int x = 0; x < VGA_WIDTH; x++)
         {
             terminal_putchar(x, y, ' ', 0);
         }
-    }
+    }   
 }
 
-uint16_t terminal_uint16_t_make_char(char c, char col)
-{
-    return (col << 8) | c;
-}
 
-size_t strlen(const char* c)
+size_t strlen(const char* str)
 {
     size_t len = 0;
-    
-    /**
-     * hunt for null-terminator
-     */
-    while(c[len])
+    while(str[len])
     {
         len++;
     }
+
     return len;
 }
 
 void print(const char* str)
 {
     size_t len = strlen(str);
-    for(int i = 0; i < len; ++i)
+    for (int i = 0; i < len; i++)
     {
         terminal_writechar(str[i], 15);
     }
 }
 
-void terminal_writechar(char c, char col)
-{
-    if(c == '\n')
-    {
-        ++terminal_col;
-        terminal_col = 0;
-        return;
-    }
-    terminal_putchar(terminal_col, terminal_row, c, col);
-    ++terminal_col;
-
-    if(terminal_col += VGA_WIDTH)
-    {
-        terminal_col = 0;
-        ++terminal_row;
-    }
-}
-
-void terminal_putchar(int x, int y, char c, char color)
-{
-    video_mem[(y * VGA_WIDTH) + x] = terminal_uint16_t_make_char(c, color);
-}
-/**
- * 1st byte - character
- * 2nd byte - color
- * 
- * TEXT mode supports 16 different colors
-*/
-void kernel_main(void)
+void kernel_main()
 {
     terminal_initialize();
-    // char* video_mem = (char*)(0xB8000);
-    // video_mem[0] = 'A';
-    // video_mem[1] = '3';
+    print("Hello world!\ntest");
 
-    // video_mem[0] = terminal_uint16_t_make_char('A', 3);
-    // terminal_writechar('A', 15);
-    // terminal_writechar('B', 10);
+    // Initialize the heap
+    kheap_init();
 
-    print("Hello Kernel World!!");
+    // Initialize the interrupt descriptor table
     idt_init();
-
-    // outb(0x60, 0xff);
 }

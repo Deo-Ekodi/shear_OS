@@ -6,7 +6,6 @@
 struct heap kernel_heap;
 struct heap_table kernel_heap_table;
 
-
 void kheap_init()
 {
     int total_table_entries = SHEAROS_HEAP_SIZE_BYTES / SHEAROS_HEAP_BLOCK_SIZE;
@@ -15,8 +14,19 @@ void kheap_init()
 
     void* end = (void*)(SHEAROS_HEAP_ADDRESS + SHEAROS_HEAP_SIZE_BYTES);
     int res = heap_create(&kernel_heap, (void*)(SHEAROS_HEAP_ADDRESS), end, &kernel_heap_table);
-    if(res < 0)
+    if (res < 0)
     {
-    print("failed to create heap! \n");
+        print("Failed to create heap\n");
     }
+
+}
+
+void* kmalloc(size_t size)
+{
+    return heap_malloc(&kernel_heap, size);
+}
+
+void kfree(void* ptr)
+{
+    heap_free(&kernel_heap, ptr);
 }

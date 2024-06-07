@@ -5,6 +5,7 @@
 
 
 #include <stdbool.h>
+
 static int heap_validate_table(void* ptr, void* end, struct heap_table* table)
 {
     int res = 0;
@@ -67,7 +68,7 @@ static uint32_t heap_align_value_to_upper(uint32_t val)
     return val;
 }
 
-static int heap_get_entry_type(HEAP_BLOCK_TABLE_ENTRY entry)
+static bool heap_get_entry_type(HEAP_BLOCK_TABLE_ENTRY entry)
 {
     return entry & 0x0f;
 }
@@ -83,7 +84,7 @@ int heap_get_start_block(struct heap* heap, int total_blocks)
         if(heap_get_entry_type(table->entries[i]))
         {
             bc = 0;
-            bc = -1;
+            bs = -1;
             continue;
         }
 
@@ -132,6 +133,7 @@ void heap_mark_blocks_taken(struct heap* heap, int start_block, int total_blocks
         }
     }
 }
+
 void* heap_malloc_blocks(struct heap* heap, uint32_t total_blocks)
 {
     void* address = 0;
@@ -143,12 +145,33 @@ void* heap_malloc_blocks(struct heap* heap, uint32_t total_blocks)
 
     address = heap_block_to_address(heap, start_block);
 
-    // maRk block tajen
+    // mark block taken
     heap_mark_blocks_taken(heap, start_block, total_blocks);
 
 out:
     return address;
 }
+
+void heap_mark_blocks_free(struct heap* heap, int start_block)
+{
+    struct heap_table* table = heap->table;
+
+    for(int i = start_block; i < (int)table->total; ++i)
+    {
+        HEAP_BLOCK_TABLE_ENTRY entry = table->entries[i];
+        table->entries[i] = HEAP_BLOCK_TABLE_ENTRY_FREE;
+        if(!(entry & HEAP_BLOCK_HAS_NEXT))
+        {
+            break;
+        }
+    }
+}
+
+int heap_address_to_block(struct heap* heap, void* address)
+{
+    return ((int)(address - heap->saddr)) / SHEAROS_HEAP_BLOCK_SIZE;
+}
+
 void* heap_malloc(struct heap* heap, size_t size)
 {
     size_t aligned_size = heap_align_value_to_upper(size);
@@ -158,5 +181,5 @@ void* heap_malloc(struct heap* heap, size_t size)
 
 void heap_free(struct heap* heap, void* ptr)
 {
-    ;
+    heap_mark_blocks_free(heap, heap_address_to_block(heap, ptr));
 }

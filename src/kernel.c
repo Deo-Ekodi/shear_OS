@@ -87,9 +87,22 @@ void kernel_main()
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE);
 
 // switch
-    paging_switch(paging_4b_chunk_get_directory(kernel_chunk));
+    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
 
+    char* ptr = kzalloc(4096);
+    paging_set(paging_4gb_chunk_get_directory(kernel_chunk), (void*)0x1000, (uint32_t)ptr | PAGING_ACCESS_FROM_ALL | PAGING_IS_PRESENt | PAGING_IS_WRITEABLE);
+
+
+    // enable paging
     enable_paging();
+
+    char* ptr2 = (char*) 0x1000;
+    ptr2[0] = 'A';
+    ptr2[1] = 'B';
+
+    print(ptr2);
+    print(ptr);
+
 //   enable interrupts
     enable_interrupts();
 };

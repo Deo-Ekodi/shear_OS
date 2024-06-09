@@ -14,6 +14,12 @@ int strlen(const char* str)
 int strnlen(const char* ptr, int max)
 {
     int i = 0;
+    for(; i < max; ++i)
+    {
+        if(ptr[i] == 0)
+            break;
+    }
+    return i;
 }
 
 bool isdigit(char c)

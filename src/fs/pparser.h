@@ -12,7 +12,15 @@ struct path_root
 struct path_part
 {
     const char* part;
-    const path_part* next;
+    const struct path_part* next;
 };
+
+struct path_part* pathparser_parse_path_part(struct path_part* last_part, const char** path);
+void pathparser_free(struct path_root* root);
+struct path_root* pathparser_parse(const char* path, const char* current_directory);
+
+
+
+
 
 #endif

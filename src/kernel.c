@@ -1,6 +1,7 @@
-#include "kernel.h"
 #include <stddef.h>
 #include <stdint.h>
+
+#include "kernel.h"
 #include "idt/idt.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"

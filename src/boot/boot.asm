@@ -10,7 +10,7 @@ nop
 ;fat 16
 OEMIdentifier       db 'SHEAROS '  ; 8 bytes
 BytesPerSector      dw 0x200
-SectorsPerCluster   dw 0x80
+SectorsPerCluster   db 0x80
 ReservedSectors     dw 200
 FATCopies           db 0x02
 RootDirEntries      dw 0x40

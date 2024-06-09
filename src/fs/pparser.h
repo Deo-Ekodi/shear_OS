@@ -11,8 +11,13 @@ struct path_root
 
 struct path_part
 {
+<<<<<<< HEAD
     const char* part;
     const struct path_part* next;
+=======
+    char* part;
+    struct path_part* next;
+>>>>>>> def456b (disk_streamer compplete)
 };
 
 struct path_part* pathparser_parse_path_part(struct path_part* last_part, const char** path);

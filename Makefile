@@ -12,7 +12,6 @@ all: ./bin/boot.bin ./bin/kernel.bin
 	sudo mount -t vfat ./bin/os.bin /mnt/d
 # manipulate a file
 	sudo cp ./hello.txt  /mnt/d
-	sudo umount /mnt/d
 
 ./bin/kernel.bin: $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o ./build/kernelfull.o
@@ -82,5 +81,8 @@ clean:
 	rm -r build/*.o
 	rm -r build/fs/*.o
 	rm -r build/string/*.o
+
+	sudo umount /mnt/d
+	clear
 
 # rm -r ${FILES}

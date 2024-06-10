@@ -8,10 +8,7 @@
 #include "disk/disk.h"
 #include "fs/pparser.h"
 #include "string/string.h"
-<<<<<<< HEAD
-=======
 #include "disk/streamer.h"
->>>>>>> def456b (disk_streamer compplete)
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -108,15 +105,6 @@ void kernel_main()
     // Enable the system interrupts
     enable_interrupts();
 
-<<<<<<< HEAD
-    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
-
-    if(root_path)
-    {
-        ;
-    }
-}
-=======
 // make sure to review lecture 39 -- interesting end
     // struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
 
@@ -131,4 +119,3 @@ void kernel_main()
     diskstreamer_read(stream, &c, 1);
     while(1){}
 }
->>>>>>> def456b (disk_streamer compplete)

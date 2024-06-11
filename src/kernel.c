@@ -9,6 +9,7 @@
 #include "fs/pparser.h"
 #include "string/string.h"
 #include "disk/streamer.h"
+#include "string/string.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -113,9 +114,12 @@ void kernel_main()
     //     ;
     // }
 
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x201);
-    unsigned char c = 0;
-    diskstreamer_read(stream, &c, 1);
+    // struct disk_stream* stream = diskstreamer_new(0);
+    // diskstreamer_seek(stream, 0x201);
+    // unsigned char c = 0;
+    // diskstreamer_read(stream, &c, 1);
+
+    char buf[10];
+    strcpy(buf, "hello");
     while(1){}
 }

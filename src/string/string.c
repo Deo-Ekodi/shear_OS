@@ -30,3 +30,15 @@ int tonumericdigit(char c)
 {
     return c - 48;
 }
+
+char* strcpy(char* dest, const char* src)
+{
+    char* tmp = dest;
+    while(*src != 0)
+    {
+        *dest = *src;
+        src += 1;
+        dest += 1;
+    }
+    return tmp;
+}

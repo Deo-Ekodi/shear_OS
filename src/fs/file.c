@@ -80,7 +80,12 @@ static int file_new_descriptor(struct file_descriptor** desc_out)
 
 static struct file_descriptor* file_get_descriptor(int fd)
 {
-
+    if(fd <= 0 || fd >= SHEAROS_MAX_FILE_DESCRIPTORS)
+    {
+        return 0;
+    }
+    int index = fd - 1;
+    return file_descriptors[index];
 }
 
 // struct filesystem* fs_resolve(struct disk* disk)

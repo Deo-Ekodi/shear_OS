@@ -42,7 +42,6 @@ void disk_search_and_init()
     memset(&disk, 0, sizeof(disk));
     disk.type = SHEAROS_DISK_TYPE_REAL;
     disk.sector_size = SHEAROS_SECTOR_SIZE;
-    // resolve disk
     disk.filesystem = fs_resolve(&disk);
 }
 

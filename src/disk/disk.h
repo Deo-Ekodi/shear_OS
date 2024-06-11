@@ -11,7 +11,7 @@ struct disk
 {
     SHEAROS_DISK_TYPE type;
     int sector_size;
-    struct filesysten* filesystem;
+    struct filesystem* filesystem;
 };
 
 void disk_search_and_init();

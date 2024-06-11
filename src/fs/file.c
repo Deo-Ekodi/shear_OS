@@ -3,7 +3,7 @@
 #include "memory/memory.h"
 #include "status.h"
 #include "memory/heap/kheap.h"
-
+#include "kernel.h"
 
 
 struct  filesystem* filesystems[SHEAROS_MAX_FILESYSTEMS];
@@ -26,10 +26,6 @@ static struct filesystem** fs_get_free_filesystem()
 ;
 
 
-int fopen(const char*, const char*)
-{
-    ;
-}
 void fs_insert_filesystem(struct filesystem* filesystem)
 {
     struct filesystem** fs;
@@ -88,7 +84,22 @@ static struct file_descriptor* file_get_descriptor(int fd)
     return file_descriptors[index];
 }
 
-// struct filesystem* fs_resolve(struct disk* disk)
-// {
-//     ;
-// }
+// looop through al the filesystems and resolve one
+struct filesystem* fs_resolve(struct disk* disk)
+{
+    struct filesystem* fs = 0;
+    for(int i = 0; i <= SHEAROS_MAX_FILESYSTEMS; ++i)
+    {
+        if(filesystems[i] != 0 && filesystems[i]->resolve(disk) == 0)
+        {
+            fs = filesystems[i];
+            break;
+        }
+    }
+    return fs;
+}
+
+int fopen(const char* filename, const char*mode) 
+{
+    return -EIO;
+}

@@ -111,19 +111,8 @@ void kernel_main()
     enable_interrupts();
 
 // make sure to review lecture 39 -- interesting end
-    // struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
 
-    // if(root_path)
-    // {
-    //     ;
-    // }
-
-    // struct disk_stream* stream = diskstreamer_new(0);
-    // diskstreamer_seek(stream, 0x201);
-    // unsigned char c = 0;
-    // diskstreamer_read(stream, &c, 1);
-
-    char buf[10];
+    char buf[20];
     strcpy(buf, "hello");
     while(1){}
 }

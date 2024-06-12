@@ -7,34 +7,28 @@ DATA_SEG equ gdt_data - gdt_start
 jmp short start
 nop
 
-;fat 16
-OEMIdentifier       db 'SHEAROS '  ; 8 bytes
-BytesPerSector      dw 0x200
-SectorsPerCluster   db 0x80
-ReservedSectors     dw 200
-FATCopies           db 0x02
-RootDirEntries      dw 0x40
-NumSectors          dw 0x00
-MediaType           db 0xF8
-SectorsPerFat       dw 0x100
-SectorsPerTrack     dw 0x20
-NumberOfHeads       dw 0x40
-HiddenSectors       dd 0x00
-SectorsBIg          dd 0x773594
+; FAT16 Header
+OEMIdentifier           db 'SHEAROS '
+BytesPerSector          dw 0x200
+SectorsPerCluster       db 0x80
+ReservedSectors         dw 200
+FATCopies               db 0x02
+RootDirEntries          dw 0x40
+NumSectors              dw 0x00
+MediaType               db 0xF8
+SectorsPerFat           dw 0x100
+SectorsPerTrack         dw 0x20
+NumberOfHeads           dw 0x40
+HiddenSectors           dd 0x00
+SectorsBig              dd 0x773594
 
-; Extended BPB (DOS 4.0)
-DriveNumber         db 0x80
-WinNTBit            db 0x00
-Signature           db 0x29
-VolumeID            dd 0xD105
-VolumeIDString      db 'SHEAROS BOO'
-SystemIDString      db 'FAT16   '
-
-
-
-
-
-
+; Extended BPB (Dos 4.0)
+DriveNumber             db 0x80
+WinNTBit                db 0x00
+Signature               db 0x29
+VolumeID                dd 0xD105
+VolumeIDString          db 'SHEAROS BOO'
+SystemIDString          db 'FAT16   '
 
 
 start:

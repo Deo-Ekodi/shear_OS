@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "fat16.h"
 #include "string/string.h"
 #include "disk/disk.h"
@@ -5,7 +7,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/memory.h"
 #include "status.h"
-#include <stdint.h>
+#include "kernel.h"
 
 #define SHEAROS_FAT16_SIGNATURE 0x29
 #define SHEAROS_FAT16_FAT_ENTRY_SIZE 0x02
@@ -489,7 +491,20 @@ void fat16_free_directory(struct fat_directory* directory)
     kfree(directory);
 }
 
-struct fat_director* fat16_load_fat_directory(struct disk* disk, struct fat_directory_item* item)
+void fat16_fat_item_free(struct fat_item* item)
+{
+    if(item->type == FAT_ITEM_TYPE_DIRECTORY)
+    {
+        fat16_free_directory(item->directory);
+    }
+    else if(item->type == FAT_ITEM_TYPE_FILE)
+    {
+        kfree(item->item);
+    }
+    kfree(item);
+}
+
+struct fat_directory* fat16_load_fat_directory(struct disk* disk, struct fat_directory_item* item)
 {
     int res = 0;
     struct fat_directory* directory = 0;
@@ -545,12 +560,12 @@ struct fat_item* fat16_new_fat_item_for_directory_item(struct disk* disk, struct
 
     if(item->attribute & FAT_FILE_SUBDIRECTORY)
     {
-        f_item->directory = fat16_get_total_items_for_directory(disk, item);
+        f_item->directory = fat16_load_fat_directory(disk, item);
         f_item->type = FAT_ITEM_TYPE_DIRECTORY;
     }
 
     f_item->type = FAT_ITEM_TYPE_FILE;
-    f_item = fat16_clone_directory_item(item, sizeof(struct fat_directory_item));
+    f_item->item = fat16_clone_directory_item(item, sizeof(struct fat_directory_item));
 
     return f_item;
 }
@@ -563,11 +578,12 @@ struct fat_item* fat16_find_item_in_directory(struct disk* disk, struct fat_dire
     for(int i = 0; i < directory->total; i++)
     {
         fat16_get_full_relative_filename(&directory->item[i], tmp_filename, sizeof(tmp_filename));
-        if(istrncmp(tmp_filename, name, sizeof(tmp_filename)) == 0)
+        if(istrcmp(tmp_filename, name, sizeof(tmp_filename)) == 0)
         {
             f_item = fat16_new_fat_item_for_directory_item(disk, &directory->item[i]);
         }
     }
+    return f_item;
 }
 
 struct fat_item* fat16_get_directory_entry(struct disk* disk, struct path_part* path)
@@ -616,7 +632,7 @@ void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode)
     descriptor->item = fat16_get_directory_entry(disk, path);
     if(!descriptor->item)
     {
-        return Error(-EIO);
+        return ERROR(-EIO);
     }
     descriptor->pos = 0;
     return descriptor;

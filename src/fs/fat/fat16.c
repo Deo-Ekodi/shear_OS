@@ -1,27 +1,32 @@
 #include "fat16.h"
 #include "string/string.h"
+#include "disk/disk.h"
+#include "disk/streamer.h"
+#include "memory/heap/kheap.h"
 #include "memory/memory.h"
 #include "status.h"
-#include "memory/heap/kheap.h"
+#include <stdint.h>
+
+#define SHEAROS_FAT16_SIGNATURE 0x29
+#define SHEAROS_FAT16_FAT_ENTRY_SIZE 0x02
+#define SHEAROS_FAT16_BAD_SECTOR 0xFF7
+#define SHEAROS_FAT16_UNUSED 0x00
+
 
 typedef unsigned int FAT_ITEM_TYPE;
 #define FAT_ITEM_TYPE_DIRECTORY 0
-#define FAT_ITEM_TYPE_FILE      1
+#define FAT_ITEM_TYPE_FILE 1
 
-#define SHEAROS_FAT16_SIGNATURE         0x29
-#define SHEAROS_FAT16_FAT_ENTRY_SIZE    0x02
-#define SHEAROS_FAT16_BAD_SECTOR        0xFF7
-#define SHEAROS_FAT16_UNSIGNED          0x00
+// Fat directory entry attributes bitmask
+#define FAT_FILE_READ_ONLY 0x01
+#define FAT_FILE_HIDDEN 0x02
+#define FAT_FILE_SYSTEM 0x04
+#define FAT_FILE_VOLUME_LABEL 0x08
+#define FAT_FILE_SUBDIRECTORY 0x10
+#define FAT_FILE_ARCHIVED 0x20
+#define FAT_FILE_DEVICE 0x40
+#define FAT_FILE_RESERVED 0x80
 
-// fat directories attributes bitmask
-#define FAT_FILE_READ_ONLY      0x01
-#define FAT_FILE_HIDDEN         0x02
-#define FAT_FILE_SYSTEM         0x04
-#define FAT_FILE_VOLUME_LABEL   0x08
-#define FAT_FILE_SUBDIRECTORY   0x10
-#define FAT_FILE_ARCHIVED       0x20
-#define FAT_FILE_DEVICE         0x40
-#define FAT_FILE_RESERVED       0x80
 
 struct fat_header_extended
 {
@@ -47,10 +52,9 @@ struct fat_header
     uint16_t sectors_per_fat;
     uint16_t sectors_per_track;
     uint16_t number_of_heads;
-    uint32_t hidden_sectors;
+    uint32_t hidden_setors;
     uint32_t sectors_big;
 } __attribute__((packed));
-
 
 struct fat_h
 {
@@ -58,7 +62,7 @@ struct fat_h
     union fat_h_e
     {
         struct fat_header_extended extended_header;
-    }shared;
+    } shared;
 };
 
 struct fat_directory_item
@@ -93,6 +97,7 @@ struct fat_item
         struct fat_directory_item* item;
         struct fat_directory* directory;
     };
+    
     FAT_ITEM_TYPE type;
 };
 
@@ -107,14 +112,18 @@ struct fat_private
     struct fat_h header;
     struct fat_directory root_directory;
 
-    // used to stream dta clusters
+    // Used to stream data clusters
     struct disk_stream* cluster_read_stream;
-    struct disk_stream* directory_stream;
-
-    // used to stream FAT
+    // Used to stream the file allocation table
     struct disk_stream* fat_read_stream;
+
+
+    // Used in situations where we stream the directory
+    struct disk_stream* directory_stream;
 };
 
+int fat16_resolve(struct disk* disk);
+void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode);
 
 struct filesystem fat16_fs =
 {
@@ -136,6 +145,7 @@ static void fat16_init_private(struct disk* disk, struct fat_private* private)
     private->directory_stream = diskstreamer_new(disk->id);
 }
 
+
 int fat16_sector_to_absolute(struct disk* disk, int sector)
 {
     return sector * disk->sector_size;
@@ -146,16 +156,14 @@ int fat16_get_total_items_for_directory(struct disk* disk, uint32_t directory_st
     struct fat_directory_item item;
     struct fat_directory_item empty_item;
     memset(&empty_item, 0, sizeof(empty_item));
-
+    
     struct fat_private* fat_private = disk->fs_private;
 
     int res = 0;
     int i = 0;
-
     int directory_start_pos = directory_start_sector * disk->sector_size;
     struct disk_stream* stream = fat_private->directory_stream;
-
-    if (diskstreamer_seek(stream, directory_start_pos) != SHEAROS_ALL_OK)
+    if(diskstreamer_seek(stream, directory_start_pos) != SHEAROS_ALL_OK)
     {
         res = -EIO;
         goto out;
@@ -163,24 +171,29 @@ int fat16_get_total_items_for_directory(struct disk* disk, uint32_t directory_st
 
     while(1)
     {
-        if(diskstreamer_read(stream, &item, sizeof(item)) != SHEAROS_ALL_OK)
+        if (diskstreamer_read(stream, &item, sizeof(item)) != SHEAROS_ALL_OK)
         {
             res = -EIO;
             goto out;
         }
-        if(item.filename[0] == 0x00)
+
+        if (item.filename[0] == 0x00)
         {
-            // done
+            // We are done
             break;
         }
-        // unused item
-        if(item.filename[0] == 0xE5)
+
+        // Is the item unused
+        if (item.filename[0] == 0xE5)
         {
             continue;
         }
-        ++i;
+
+        i++;
     }
+
     res = i;
+
 out:
     return res;
 }
@@ -189,35 +202,32 @@ int fat16_get_root_directory(struct disk* disk, struct fat_private* fat_private,
 {
     int res = 0;
     struct fat_header* primary_header = &fat_private->header.primary_header;
-    int root_dir_sector_pos = (primary_header->fat_copies * primary_header->sectors_per_fat) + primary_header->reserved_sectors; 
+    int root_dir_sector_pos = (primary_header->fat_copies * primary_header->sectors_per_fat) + primary_header->reserved_sectors;
     int root_dir_entries = fat_private->header.primary_header.root_dir_entries;
     int root_dir_size = (root_dir_entries * sizeof(struct fat_directory_item));
-
     int total_sectors = root_dir_size / disk->sector_size;
-
-    // offset
-    if(root_dir_size % disk->sector_size)
+    if (root_dir_size % disk->sector_size)
     {
         total_sectors += 1;
     }
 
     int total_items = fat16_get_total_items_for_directory(disk, root_dir_sector_pos);
 
-    struct fat_directory_item* dir = kzalloc(sizeof(root_dir_size));
-    if(!dir)
+    struct fat_directory_item* dir = kzalloc(root_dir_size);
+    if (!dir)
     {
         res = -ENOMEM;
         goto out;
     }
 
     struct disk_stream* stream = fat_private->directory_stream;
-    if(diskstreamer_seek(stream, fat16_sector_to_absolute(disk, root_dir_sector_pos)) != SHEAROS_ALL_OK)
+    if (diskstreamer_seek(stream, fat16_sector_to_absolute(disk, root_dir_sector_pos)) != SHEAROS_ALL_OK)
     {
         res = -EIO;
         goto out;
     }
 
-    if(diskstreamer_read(stream, dir, root_dir_size) != SHEAROS_ALL_OK)
+    if (diskstreamer_read(stream, dir, root_dir_size) != SHEAROS_ALL_OK)
     {
         res = -EIO;
         goto out;
@@ -227,60 +237,54 @@ int fat16_get_root_directory(struct disk* disk, struct fat_private* fat_private,
     directory->total = total_items;
     directory->sector_pos = root_dir_sector_pos;
     directory->ending_sector_pos = root_dir_sector_pos + (root_dir_size / disk->sector_size);
-
 out:
     return res;
 }
-
 int fat16_resolve(struct disk* disk)
 {
     int res = 0;
     struct fat_private* fat_private = kzalloc(sizeof(struct fat_private));
     fat16_init_private(disk, fat_private);
-    struct disk_stream* stream = diskstreamer_new(disk->id);
 
     disk->fs_private = fat_private;
     disk->filesystem = &fat16_fs;
-
-
+    
+    struct disk_stream* stream = diskstreamer_new(disk->id);
     if(!stream)
     {
         res = -ENOMEM;
         goto out;
     }
-    
-    if(diskstreamer_read(stream, &fat_private->header, sizeof(fat_private->header)) != SHEAROS_ALL_OK)
+
+    if (diskstreamer_read(stream, &fat_private->header, sizeof(fat_private->header)) != SHEAROS_ALL_OK)
     {
         res = -EIO;
         goto out;
     }
 
-    // check if fat16 signature is not present
-    if(fat_private->header.shared.extended_header.signature != 0x29)
+    if (fat_private->header.shared.extended_header.signature != 0x29)
     {
         res = -EFSNOTUS;
         goto out;
     }
 
-    if(fat16_get_root_directory(disk, fat_private, &fat_private->root_directory) != SHEAROS_ALL_OK)
+    if (fat16_get_root_directory(disk, fat_private, &fat_private->root_directory) != SHEAROS_ALL_OK)
     {
         res = -EIO;
         goto out;
     }
 
-
 out:
-    if(stream)
+    if (stream)
     {
         diskstreamer_close(stream);
     }
 
-    if(res < 0)
+    if (res < 0)
     {
         kfree(fat_private);
         disk->fs_private = 0;
     }
-
     return res;
 }
 

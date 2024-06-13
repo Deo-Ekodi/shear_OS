@@ -1,7 +1,5 @@
-#ifndef PPARSER_H
-#define PPARSER_H
-
-#define SHEAROS_MAX_PATH 108
+#ifndef PATHPARSER_H
+#define PATHPARSER_H
 
 struct path_root
 {
@@ -11,16 +9,11 @@ struct path_root
 
 struct path_part
 {
-    char* part;
+    const char* part;
     struct path_part* next;
 };
 
-struct path_part* pathparser_parse_path_part(struct path_part* last_part, const char** path);
+struct path_root* pathparser_parse(const char* path, const char* current_directory_path);
 void pathparser_free(struct path_root* root);
-struct path_root* pathparser_parse(const char* path, const char* current_directory);
-
-
-
-
 
 #endif

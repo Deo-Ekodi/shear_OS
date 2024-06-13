@@ -21,22 +21,19 @@ _start:
     or al, 2
     out 0x92, al
 
-    ; remap master Programmable Interrupt Controller (PIC)
+    ; Remap the master PIC
     mov al, 00010001b
-    out 0x20, al
+    out 0x20, al ; Tell master PIC
 
-    mov al, 0x20
+    mov al, 0x20 ; Interrupt 0x20 is where master ISR should start
     out 0x21, al
 
-    mov al, 000000001b
+    mov al, 00000001b
     out 0x21, al
+    ; End remap of the master PIC
 
-    
     call kernel_main
-    jmp $
 
-; problem:
-;     mov eax, 0
-;     div eax
+    jmp $
 
 times 512-($ - $$) db 0

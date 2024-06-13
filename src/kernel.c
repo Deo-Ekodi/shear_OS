@@ -1,16 +1,14 @@
+#include "kernel.h"
 #include <stddef.h>
 #include <stdint.h>
-
-#include "kernel.h"
 #include "idt/idt.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
-#include "disk/disk.h"
-#include "fs/pparser.h"
-#include "string/string.h"
-#include "disk/streamer.h"
 #include "string/string.h"
 #include "fs/file.h"
+#include "disk/disk.h"
+#include "fs/pparser.h"
+#include "disk/streamer.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -58,16 +56,6 @@ void terminal_initialize()
 }
 
 
-// size_t strlen(const char* str)
-// {
-//     size_t len = 0;
-//     while(str[len])
-//     {
-//         len++;
-//     }
-
-//     return len;
-// }
 
 void print(const char* str)
 {
@@ -88,10 +76,10 @@ void kernel_main()
     // Initialize the heap
     kheap_init();
 
-    // initialize filesystem
+    // Initialize filesystems
     fs_init();
-    
-    // search & initialize disk
+
+    // Search and initialize the disks
     disk_search_and_init();
 
     // Initialize the interrupt descriptor table
@@ -105,17 +93,14 @@ void kernel_main()
 
     // Enable paging
     enable_paging();
-
-
+    
     // Enable the system interrupts
     enable_interrupts();
 
-// make sure to review lecture 39 -- interesting end
-
     int fd = fopen("0:/hello.txt", "r");
-    if(fd)
+    if (fd)
     {
-        print("hello.txt opened successfully");
+        print("We opened hello.txt\n");
     }
-    while(1){}
+    while(1) {}
 }

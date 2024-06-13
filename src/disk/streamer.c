@@ -1,15 +1,14 @@
 #include "streamer.h"
 #include "memory/heap/kheap.h"
 #include "config.h"
-#include "disk/disk.h"
-
 struct disk_stream* diskstreamer_new(int disk_id)
 {
     struct disk* disk = disk_get(disk_id);
-    if(!disk)
+    if (!disk)
     {
         return 0;
     }
+
     struct disk_stream* streamer = kzalloc(sizeof(struct disk_stream));
     streamer->pos = 0;
     streamer->disk = disk;
@@ -29,22 +28,23 @@ int diskstreamer_read(struct disk_stream* stream, void* out, int total)
     char buf[SHEAROS_SECTOR_SIZE];
 
     int res = disk_read_block(stream->disk, sector, 1, buf);
-    if(res < 0)
+    if (res < 0)
     {
         goto out;
     }
-    int total_to_read = (total > SHEAROS_SECTOR_SIZE ? SHEAROS_SECTOR_SIZE : total);
-    for(int i = 0; i < total_to_read; ++i)
+
+    int total_to_read = total > SHEAROS_SECTOR_SIZE ? SHEAROS_SECTOR_SIZE : total;
+    for (int i = 0; i < total_to_read; i++)
     {
-        *(char*)out++ = buf[offset + 1];
-    }
-    stream->pos += total_to_read;
-    if(total > SHEAROS_SECTOR_SIZE)
-    {
-        // recursion
-        res = diskstreamer_read(stream, out, total - SHEAROS_SECTOR_SIZE);
+        *(char*)out++ = buf[offset+i];
     }
 
+    // Adjust the stream
+    stream->pos += total_to_read;
+    if (total > SHEAROS_SECTOR_SIZE)
+    {
+        res = diskstreamer_read(stream, out, total-SHEAROS_SECTOR_SIZE);
+    }
 out:
     return res;
 }

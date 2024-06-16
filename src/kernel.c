@@ -1,14 +1,18 @@
 #include "kernel.h"
 #include <stddef.h>
 #include <stdint.h>
+
 #include "idt/idt.h"
+#include "memory/memory.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "string/string.h"
 #include "fs/file.h"
-#include "disk/disk.h"
 #include "fs/pparser.h"
+#include "disk/disk.h"
 #include "disk/streamer.h"
+#include "gdt/gdt.h"
+#include "config.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -66,12 +70,32 @@ void print(const char* str)
     }
 }
 
+void panic(const char* msg)
+{
+    print(msg);
+    while(1){}
+}
+
+struct gdt gdt_real[SHEAROS_TOTAL_GDT_SEGMENTS];
+struct gdt_structured gdt_structured[SHEAROS_TOTAL_GDT_SEGMENTS] = 
+{
+    {.base = 0x00, .limit = 0x00, .type = 0x00},        /* NULL segment */
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x9a},  /* Kernel Code Segment */
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x92}   /* Kernel Data Segment */
+};
+
 
 static struct paging_4gb_chunk* kernel_chunk = 0;
 void kernel_main()
 {
     terminal_initialize();
     print("Hello world!\ntest");
+
+    memset(gdt_real, 0x00, sizeof(gdt_real));
+    gdt_structured_to_gdt(gdt_real, gdt_structured, SHEAROS_TOTAL_GDT_SEGMENTS);
+
+    // load GDT
+    gdt_load(gdt_real, sizeof(gdt_real));
 
     // Initialize the heap
     kheap_init();

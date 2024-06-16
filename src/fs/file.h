@@ -43,6 +43,8 @@ struct file_stat
 };
 
 typedef int (*FS_STAT_FUNCTION)(struct disk* disk, void* private, struct file_stat* stat);
+
+// the virtual filesystem
 struct filesystem
 {
     // Filesystem should return zero from resolve if the provided disk is using its filesystem

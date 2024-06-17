@@ -14,6 +14,9 @@
 #include "gdt/gdt.h"
 #include "config.h"
 #include "task/tss.h"
+#include "task/task.h"
+#include "task/process.h"
+#include "status.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -88,7 +91,7 @@ struct gdt_structured gdt_structured[SHEAROS_TOTAL_GDT_SEGMENTS] =
 
     {.base = 0x00, .limit = 0xffffffff, .type = 0xf8},
     {.base = 0x00, .limit = 0xffffffff, .type = 0xf2},
-    {.base = (uint32_t)&tss, .limit = sizeof(tss), .type = 0xE9}
+    {.base = (uint32_t)(&tss), .limit = sizeof(tss), .type = 0xE9}
 };
 
 
@@ -118,29 +121,26 @@ void kernel_main()
 
     // setup tss
     memset(&tss, 0x00, sizeof(tss));
-    tss.esp0 = 0x6000000;
+    tss.esp0 = 0x600000;
     tss.ss0 = KERNEL_DATA_SELECTOR;
     // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
     
     // Switch to kernel paging chunk
-    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
+    paging_switch(kernel_chunk);
 
     // Enable paging
     enable_paging();
     
-    // Enable the system interrupts
-    enable_interrupts();
-
-    int fd = fopen("0:/hello.txt", "r");
-    if (fd)
+    struct process* process = 0;
+    int res = process_load("0:/blank.bin", &process);
+    if(res != SHEAROS_ALL_OK)
     {
-        struct file_stat s;
-        fstat(fd, &s);
-        fclose(fd);
-
-        print("testing\n");
+        panic("failed to load blank.bin\n");
     }
+
+    task_run_first_ever_task();
+
     while(1) {}
 }
 

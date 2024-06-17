@@ -51,6 +51,7 @@ struct task* task_new(struct process* process)
     {
         task_head = task;
         task_tail = task;
+        current_task = task;
         goto out;
     }
     task_tail->next = task;
@@ -117,7 +118,7 @@ int task_free(struct task* task)
 int task_switch(struct task* task)
 {
     current_task = task;
-    paging_switch(task->page_directory->directory_entry);
+    paging_switch(task->page_directory);
     return 0;
 }
 
@@ -153,6 +154,7 @@ int task_init(struct task* task, struct process* process)
 
     task->registers.ip = SHEAROS_PROGRAM_VIRTUAL_ADDRESS;
     task->registers.ss = USER_DATA_SEGMENT;
+    task->registers.cs = USER_CODE_SEGMENT;
     task->registers.esp = SHEAROS_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
     task->process = process;
 

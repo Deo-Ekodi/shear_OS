@@ -40,11 +40,15 @@ struct task
      * previous task in llist
      */
     struct task* prev;
+    /**
+     * process of the task
+     */
+    struct process* process;
 };
 
 
 int task_free(struct task* task);
-struct task* task_new();
+struct task* task_new(struct process* process);
 struct task* task_get_next();
 struct task* task_current();
 

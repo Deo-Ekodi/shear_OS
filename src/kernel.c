@@ -74,7 +74,7 @@ void print(const char* str)
 void panic(const char* msg)
 {
     print(msg);
-    while(1){}
+    while(1){;}
 }
 
 

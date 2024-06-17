@@ -52,4 +52,28 @@ struct task* task_new(struct process* process);
 struct task* task_get_next();
 struct task* task_current();
 
+void restore_general_purpose_registers(struct registers* regs);
+/**
+ * returns us into userland
+ */
+void task_return(struct registers* regs);
+/**
+ * change all user data so segment registers
+ */
+void user_registers();
+/**
+ * switches task to current task in the linked list
+ */
+int task_switch(struct task* task);
+/**
+ * takes us from kernel page directory and loads task page directory
+ */
+int task_page();
+/**
+ * responsible for running first ever task
+ */
+void task_run_first_ever_task();
+
+
+
 #endif

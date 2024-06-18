@@ -6,6 +6,7 @@
 #include "config.h"
 #include "memory/paging/paging.h"
 
+struct interrupt_frame;
 struct registers
 {
     uint32_t edi;
@@ -73,6 +74,7 @@ int task_page();
  * responsible for running first ever task
  */
 void task_run_first_ever_task();
+void task_current_save_state(struct interrupt_frame* frame);
 
 
 

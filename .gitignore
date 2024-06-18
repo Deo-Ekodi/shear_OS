@@ -41,6 +41,7 @@
 *.su
 *.idb
 *.pdb
+.gbd_history
 
 # Kernel Module Compile Results
 *.mod*
@@ -50,3 +51,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# code editor config
+.vscode

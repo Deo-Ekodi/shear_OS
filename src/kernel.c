@@ -80,6 +80,14 @@ void panic(const char* msg)
     while(1){;}
 }
 
+static struct paging_4gb_chunk* kernel_chunk = 0;
+
+void kernel_page()
+{
+    kernel_registers();
+    paging_switch(kernel_chunk);
+}
+
 
 struct tss tss;
 struct gdt gdt_real[SHEAROS_TOTAL_GDT_SEGMENTS];
@@ -95,7 +103,6 @@ struct gdt_structured gdt_structured[SHEAROS_TOTAL_GDT_SEGMENTS] =
 };
 
 
-static struct paging_4gb_chunk* kernel_chunk = 0;
 void kernel_main()
 {
     terminal_initialize();

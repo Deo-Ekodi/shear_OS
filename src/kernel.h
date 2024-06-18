@@ -13,6 +13,11 @@ void print(const char* str);
 
 // for unrecoverable state in the kernel
 void panic(const char* str);
+/**
+ * switch page directory to kernel page directory
+ */
+void kernel_page();
+void kernel_registers();
 
 #define ERROR(value) (void*)(value)
 #define ERROR_I(value) (int)(value)

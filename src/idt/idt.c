@@ -63,7 +63,7 @@ void idt_init()
 
 void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 {
-    if(command_id < 0 || command_id >= SHEAROS_MAX_ISR80H_COMMANDS)
+    if(command_id <  0 || command_id >= SHEAROS_MAX_ISR80H_COMMANDS)
     {
         panic("The command s out of bound!\n");
     }

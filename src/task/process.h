@@ -26,8 +26,18 @@ struct process
 
     // size of data pointed by "ptr"
     uint32_t size;
+
+    // keyboard_buffer
+    struct keyboard_buffer
+    {
+        char buffer[SHEAROS_KEYBOARD_BUFFR_SIZE];
+        int tail;
+        int head;
+    }keyboard;
 };
 
+struct process* process_get(int process_id);
+struct process* process_current();
 int process_load_for_slot(const char* filename, struct process** process, int process_slot);
 int process_load(const char* filename, struct process** process);
 

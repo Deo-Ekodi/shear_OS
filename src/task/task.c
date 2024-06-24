@@ -178,6 +178,7 @@ void task_save_state(struct task* task, struct interrupt_frame* frame)
     task->registers.edx = frame->edx;
     task->registers.esi = frame->esi;
 }
+
 void task_current_save_state(struct interrupt_frame* frame)
 {
     if(!task_current())
@@ -230,7 +231,7 @@ out:
 int task_page_task(struct task* task)
 {
     user_registers();
-    task_switch(current_task);
+    paging_switch(task->page_directory);
     return 0;
 }
 

@@ -227,6 +227,13 @@ out:
     return res;
 }
 
+int task_page_task(struct task* task)
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
 void* task_get_stack_item(struct task* task, int index)
 {
     void* result = 0;

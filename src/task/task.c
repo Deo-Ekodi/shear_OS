@@ -226,3 +226,13 @@ out_free:
 out:
     return res;
 }
+
+void* task_get_stack_item(struct task* task, int index)
+{
+    void* result = 0;
+    uint32_t* sp_ptr = (uint32_t*)task->registers.esp;
+    task_page_task(task);
+    result = (void*)sp_ptr[index];
+    kernel_page();
+    return result;
+}

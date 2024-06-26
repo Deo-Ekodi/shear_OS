@@ -7,12 +7,6 @@ enum SystemCommands
     SYSTEM_COMMAND1_PRINT,
 };
 
-
 void isr80h_register_commands();
-
-
-
-
-
 
 #endif

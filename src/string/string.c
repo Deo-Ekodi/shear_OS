@@ -93,6 +93,21 @@ char* strcpy(char* dest, const char* src)
     return res;
 }
 
+char* strncpy(char* dest, const char* src, int count)
+{
+    int i = 0;
+    for (i = 0; i < count-1; i++)
+    {
+        if (src[i] == 0x00)
+            break;
+
+        dest[i] = src[i];
+    }
+
+    dest[i] = 0x00;
+    return dest;
+}
+
 bool isdigit(char c)
 {
     return c >= 48 && c <= 57;
@@ -100,18 +115,4 @@ bool isdigit(char c)
 int tonumericdigit(char c)
 {
     return c - 48;
-}
-
-void strncpy(char* str1, const char* str2, int n)
-{
-    int i;
-    for(i = 0; i < n - 1; ++i)
-    {
-        if(str1[i] == 0x00)
-        {
-            break;
-        }
-        str1[i] = str2[i];
-    }
-    str1[i] = 0x00;
 }

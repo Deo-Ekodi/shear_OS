@@ -38,11 +38,12 @@ _start:
     jmp $
 
 kernel_registers:
-    mov ax, 10
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov gs, ax
     mov fs, ax
     ret
+
 
 times 512-($ - $$) db 0

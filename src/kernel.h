@@ -7,17 +7,11 @@
 #define SHEAROS_MAX_PATH 108
 
 void kernel_main();
-
-// display
 void print(const char* str);
-
-// for unrecoverable state in the kernel
-void panic(const char* str);
-/**
- * switch page directory to kernel page directory
- */
+void panic(const char* msg);
 void kernel_page();
 void kernel_registers();
+
 
 #define ERROR(value) (void*)(value)
 #define ERROR_I(value) (int)(value)

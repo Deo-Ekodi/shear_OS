@@ -1,9 +1,9 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-typedef int(*KEYBOARD_INIT_FUNCTION)();
-
 struct process;
+
+typedef int (*KEYBOARD_INIT_FUNCTION)();
 struct keyboard
 {
     KEYBOARD_INIT_FUNCTION init;
@@ -15,7 +15,5 @@ void keyboard_init();
 void keyboard_backspace(struct process* process);
 void keyboard_push(char c);
 char keyboard_pop();
-
-
 
 #endif

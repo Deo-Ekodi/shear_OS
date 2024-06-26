@@ -12,7 +12,7 @@ SECTIONS
     {
         *(.asm)
     }
-    
+
     .rodata : ALIGN(4096)
     {
         *(.rodata)
@@ -28,5 +28,4 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
-
 }

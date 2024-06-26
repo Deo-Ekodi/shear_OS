@@ -1,44 +1,41 @@
 #ifndef PROCESS_H
 #define PROCESS_H
-
-
 #include <stdint.h>
+#include "task.h"
 #include "config.h"
-
-
 struct process
 {
-    // process id
+    // The process id
     uint16_t id;
+
     char filename[SHEAROS_MAX_PATH];
 
-    // main process task
+    // The main process task
     struct task* task;
 
-    // the memory (malloc) allocations of the process
-    void* allocation[SHEAROS_MAX_PROGRAM_ALLOCATIONS];
+    // The memory (malloc) allocations of the process
+    void* allocations[SHEAROS_MAX_PROGRAM_ALLOCATIONS];
 
-    // physical pointer to process memory
+    // The physical pointer to the process memory.
     void* ptr;
 
-    // physical pointer to stack memory
+    // The physical pointer to the stack memory
     void* stack;
 
-    // size of data pointed by "ptr"
+    // The size of the data pointed to by "ptr"
     uint32_t size;
 
-    // keyboard_buffer
     struct keyboard_buffer
     {
-        char buffer[SHEAROS_KEYBOARD_BUFFR_SIZE];
+        char buffer[SHEAROS_KEYBOARD_BUFFER_SIZE];
         int tail;
         int head;
-    }keyboard;
+    } keyboard;
 };
 
-struct process* process_get(int process_id);
-struct process* process_current();
-int process_load_for_slot(const char* filename, struct process** process, int process_slot);
 int process_load(const char* filename, struct process** process);
+int process_load_for_slot(const char* filename, struct process** process, int process_slot);
+struct process* process_current();
+struct process* process_get(int process_id);
 
 #endif

@@ -2,9 +2,8 @@
 #include "config.h"
 #include "kernel.h"
 #include "memory/memory.h"
-#include "io/io.h"
 #include "task/task.h"
-
+#include "io/io.h"
 struct idt_desc idt_descriptors[SHEAROS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
 
@@ -63,13 +62,14 @@ void idt_init()
 
 void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 {
-    if(command_id <  0 || command_id >= SHEAROS_MAX_ISR80H_COMMANDS)
+    if (command_id < 0 || command_id >= SHEAROS_MAX_ISR80H_COMMANDS)
     {
-        panic("The command s out of bound!\n");
+        panic("The command is out of bounds\n");
     }
-    if(isr80h_commands[command_id])
+
+    if (isr80h_commands[command_id])
     {
-        panic("You are attempting to overwrite an existing command\n");
+        panic("Your attempting to overwrite an existing command\n");
     }
 
     isr80h_commands[command_id] = command;
@@ -77,22 +77,22 @@ void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 
 void* isr80h_handle_command(int command, struct interrupt_frame* frame)
 {
-    void* res = 0;
+    void* result = 0;
 
     if(command < 0 || command >= SHEAROS_MAX_ISR80H_COMMANDS)
     {
-        // invalid command
+        // Invalid command
         return 0;
     }
 
     ISR80H_COMMAND command_func = isr80h_commands[command];
-    if(!command_func)
+    if (!command_func)
     {
         return 0;
     }
 
-    res = command_func(frame);
-    return res;
+    result = command_func(frame);
+    return result;
 }
 
 void* isr80h_handler(int command, struct interrupt_frame* frame)

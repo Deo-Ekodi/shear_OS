@@ -4,35 +4,35 @@
 #include "task/process.h"
 #include "task/task.h"
 
-
 static struct keyboard* keyboard_list_head = 0;
 static struct keyboard* keyboard_list_last = 0;
 
 void keyboard_init()
 {
-    ;
+
 }
 
 int keyboard_insert(struct keyboard* keyboard)
 {
     int res = 0;
-    if(keyboard->init == 0)
+    if (keyboard->init == 0)
     {
         res = -EINVARG;
         goto out;
     }
 
-    if(keyboard_list_last)
+    if (keyboard_list_last)
     {
         keyboard_list_last->next = keyboard;
         keyboard_list_last = keyboard;
-        goto init_keyboard;
+    
     }
-
-    keyboard_list_head = keyboard;
-    keyboard_list_last = keyboard;
-
-init_keyboard:
+    else
+    {
+        keyboard_list_head = keyboard;
+        keyboard_list_last = keyboard;
+    }
+    
     res = keyboard->init();
 out:
     return res;
@@ -45,27 +45,26 @@ static int keyboard_get_tail_index(struct process* process)
 
 void keyboard_backspace(struct process* process)
 {
-    --(process->keyboard.tail);
+    process->keyboard.tail -=1 ;
     int real_index = keyboard_get_tail_index(process);
     process->keyboard.buffer[real_index] = 0x00;
 }
-
 void keyboard_push(char c)
 {
     struct process* process = process_current();
-    if(!process)
+    if (!process)
     {
         return;
     }
 
     int real_index = keyboard_get_tail_index(process);
     process->keyboard.buffer[real_index] = c;
-    ++(process->keyboard.tail);
+    process->keyboard.tail++;
 }
 
 char keyboard_pop()
 {
-    if(!task_current())
+    if (!task_current())
     {
         return 0;
     }
@@ -73,13 +72,13 @@ char keyboard_pop()
     struct process* process = task_current()->process;
     int real_index = process->keyboard.head % sizeof(process->keyboard.buffer);
     char c = process->keyboard.buffer[real_index];
-
-    if(c == 0x00)
+    if (c == 0x00)
     {
+        // Nothing to pop return zero.
         return 0;
     }
 
     process->keyboard.buffer[real_index] = 0;
-    ++(process->keyboard.head);
+    process->keyboard.head++;
     return c;
 }

@@ -7,7 +7,7 @@ void* memset(void* ptr, int c, size_t size)
     {
         c_ptr[i] = (char) c;
     }
-    return c_ptr;
+    return ptr;
 }
 
 int memcmp(void* s1, void* s2, int count)

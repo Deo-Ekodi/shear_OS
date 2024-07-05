@@ -7,7 +7,7 @@
 #define PROCESS_FILETYPE_ELF 0
 #define PROCESS_FILETYPE_BINARY 1
 
-typedef uint8_t PROCESS_FILETYPE;
+typedef unsigned char PROCESS_FILETYPE;
 struct process
 {
     // The process id
@@ -22,6 +22,7 @@ struct process
     void* allocations[SHEAROS_MAX_PROGRAM_ALLOCATIONS];
 
     PROCESS_FILETYPE filetype;
+
     union
     {
         // The physical pointer to the process memory.
@@ -44,11 +45,11 @@ struct process
     } keyboard;
 };
 
+int process_switch(struct process* process);
+int process_load_switch(const char* filename, struct process** process);
 int process_load(const char* filename, struct process** process);
 int process_load_for_slot(const char* filename, struct process** process, int process_slot);
 struct process* process_current();
 struct process* process_get(int process_id);
-int process_switch(struct process* process);
-int process_load_switch(const char* filename, struct process** process);
 
 #endif

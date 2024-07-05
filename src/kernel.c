@@ -35,32 +35,32 @@ void terminal_putchar(int x, int y, char c, char colour)
 
 void terminal_backspace()
 {
-    if(terminal_row == 0 && terminal_col == 0)
+    if (terminal_row == 0 && terminal_col == 0)
     {
         return;
     }
-    if(terminal_col == 0)
+
+    if (terminal_col == 0)
     {
         terminal_row -= 1;
         terminal_col = VGA_WIDTH;
     }
 
-    terminal_col -= 1;
+    terminal_col -=1;
     terminal_writechar(' ', 15);
-    terminal_col -= 1;
+    terminal_col -=1;
 }
 
 void terminal_writechar(char c, char colour)
 {
-// newline
     if (c == '\n')
     {
         terminal_row += 1;
         terminal_col = 0;
         return;
     }
-// ascii for backspace
-    if(c == 0x08)
+
+    if (c == 0x08)
     {
         terminal_backspace();
         return;
@@ -125,7 +125,6 @@ struct gdt_structured gdt_structured[SHEAROS_TOTAL_GDT_SEGMENTS] = {
     {.base = (uint32_t)&tss, .limit=sizeof(tss), .type = 0xE9}      // TSS Segment
 };
 
-
 void kernel_main()
 {
     terminal_initialize();
@@ -169,7 +168,7 @@ void kernel_main()
 
     // Initialize all the system keyboards
     keyboard_init();
-    
+        
     struct process* process = 0;
     int res = process_load_switch("0:/blank.elf", &process);
     if (res != SHEAROS_ALL_OK)

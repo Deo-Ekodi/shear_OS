@@ -7,9 +7,8 @@
 #include "fs/file.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
-#include "kernel.h"
-#include "loader/formats/elf.h"
 #include "loader/formats/elfloader.h"
+#include "kernel.h"
 
 // The current process that is running
 struct process* current_process = 0;
@@ -34,6 +33,12 @@ struct process* process_get(int process_id)
     }
 
     return processes[process_id];
+}
+
+int process_switch(struct process* process)
+{
+    current_process = process;
+    return 0;
 }
 
 static int process_load_binary(const char* filename, struct process* process)
@@ -80,7 +85,7 @@ static int process_load_elf(const char* filename, struct process* process)
     int res = 0;
     struct elf_file* elf_file = 0;
     res = elf_load(filename, &elf_file);
-    if(ISERR(res))
+    if (ISERR(res))
     {
         goto out;
     }
@@ -90,15 +95,15 @@ static int process_load_elf(const char* filename, struct process* process)
 out:
     return res;
 }
-
 static int process_load_data(const char* filename, struct process* process)
 {
     int res = 0;
     res = process_load_elf(filename, process);
-    if(res == -EINFORMAT)
+    if (res == -EINFORMAT)
     {
         res = process_load_binary(filename, process);
     }
+
     return res;
 }
 
@@ -109,31 +114,46 @@ int process_map_binary(struct process* process)
     return res;
 }
 
-int process_map_elf(struct process* process)
+static int process_map_elf(struct process* process)
 {
     int res = 0;
 
     struct elf_file* elf_file = process->elf_file;
-    res = paging_map_to(process->task->page_directory, paging_align_to_lower_page(elf_virtual_base(elf_file)), elf_phys_base(elf_file), paging_align_address(elf_file), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);;
+    struct elf_header* header = elf_header(elf_file);
+    struct elf32_phdr* phdrs = elf_pheader(header);
+    for (int i = 0; i < header->e_phnum; i++)
+    {
+        struct elf32_phdr* phdr = &phdrs[i];
+        void* phdr_phys_address = elf_phdr_phys_address(elf_file, phdr);
+        int flags = PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL;
+        if (phdr->p_flags & PF_W)
+        {
+            flags |= PAGING_IS_WRITEABLE;
+        }
+        res = paging_map_to(process->task->page_directory, paging_align_to_lower_page((void*)phdr->p_vaddr), paging_align_to_lower_page(phdr_phys_address), paging_align_address(phdr_phys_address+phdr->p_filesz), flags);
+        if (ISERR(res))
+        {
+            break;
+        }
+    }
     return res;
 }
-
 int process_map_memory(struct process* process)
 {
     int res = 0;
 
-    switch (process->filetype)
+    switch(process->filetype)
     {
-    case PROCESS_FILETYPE_ELF:
-        res = process_map_elf(process);
+        case PROCESS_FILETYPE_ELF:
+            res = process_map_elf(process);
         break;
 
-    case PROCESS_FILETYPE_BINARY:
-        res = process_map_binary(process);
+        case PROCESS_FILETYPE_BINARY:
+            res = process_map_binary(process);
         break;
-    
-    default:
-        panic("process_map_memory: invalid filetype\n");
+
+        default:
+            panic("process_map_memory: Invalid filetype\n");
     }
 
     if (res < 0)
@@ -141,6 +161,7 @@ int process_map_memory(struct process* process)
         goto out;
     }
 
+    // Finally map the stack
     paging_map_to(process->task->page_directory, (void*)SHEAROS_PROGRAM_VIRTUAL_STACK_ADDRESS_END, process->stack, paging_align_address(process->stack+SHEAROS_USER_PROGRAM_STACK_SIZE), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);
 out:
     return res;
@@ -169,6 +190,17 @@ int process_load(const char* filename, struct process** process)
 
     res = process_load_for_slot(filename, process, process_slot);
 out:
+    return res;
+}
+
+int process_load_switch(const char* filename, struct process** process)
+{
+    int res = process_load(filename, process);
+    if (res == 0)
+    {
+        process_switch(*process);
+    }
+
     return res;
 }
 
@@ -241,22 +273,5 @@ out:
 
        // Free the process data
     }
-    return res;
-}
-
-int process_switch(struct process* process)
-{
-    current_process = process;
-    return 0;
-}
-
-int process_load_switch(const char* filename, struct process** process)
-{
-    int res = process_load(filename, process);
-    if(res == 0)
-    {
-        process_switch(*process);
-    }
-
     return res;
 }

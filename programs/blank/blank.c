@@ -7,15 +7,15 @@ int main(int argc, char** argv)
     print("Hello, program active\n");
 
     print(itoa(928));
-    printf("\nOhh damn! printf just worked!");
+    printf("\nOhh damn! printf just worked!\n");
     putchar('z');
     void* ptr = malloc(512);
     free(ptr);
+
+    char buf[1024];
+    shearos_terminal_readline(buf, sizeof(buf), false);
+    print(buf);
     while(1){
-        if(getkey() != 0)
-        {
-            print("key press\n");
-        }
     }
     return 0;
 }

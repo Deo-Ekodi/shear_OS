@@ -2,7 +2,7 @@
 
 section .asm
 global print:function
-global getkey:function
+global shearos_getkey:function
 global shearos_malloc:function
 global shearos_free:function
 global shearos_putchar:function
@@ -19,7 +19,7 @@ print:
     ret
 
 
-getkey:
+shearos_getkey:
     push ebp
     mov ebp, esp;
     mov eax, 2

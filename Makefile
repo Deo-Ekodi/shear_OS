@@ -109,10 +109,12 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 
 
 user_programs:
+	cd ./programs/stdlib && $(MAKE) all
 	cd ./programs && $(MAKE) all
 
 
 user_programs_clean:
+	cd ./programs/stdlib && $(MAKE) clean
 	cd ./programs && $(MAKE) clean
 
 

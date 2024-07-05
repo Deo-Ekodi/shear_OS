@@ -10,7 +10,8 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 	sudo mount -t vfat ./bin/os.bin /mnt/d
 # Copy a file over
 	sudo cp ./hello.txt /mnt/d
-	sudo cp ./programs/build/blank.elf /mnt/d
+# sudo cp ./programs/blank/build/blank.elf /mnt/d
+	sudo cp ./programs/shell/build/shell.elf /mnt/d
 	sudo umount /mnt/d
 	
 ./bin/kernel.bin: $(FILES)
@@ -113,12 +114,14 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 
 user_programs:
 	cd ./programs/stdlib && $(MAKE) all
-	cd ./programs && $(MAKE) all
+	cd ./programs/blank && $(MAKE) all
+	cd ./programs/shell && $(MAKE) all
 
 
 user_programs_clean:
 	cd ./programs/stdlib && $(MAKE) clean
-	cd ./programs && $(MAKE) clean
+	cd ./programs/shell && $(MAKE) clean
+	cd ./programs/blank && $(MAKE) clean
 
 
 clean: user_programs_clean

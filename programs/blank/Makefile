@@ -3,10 +3,10 @@ INCLUDES = -I../stdlib/src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
 all: ${FILES}
-	i686-elf-gcc -g -T ./linker.ld -o ./build/blank.elf -ffreestanding -O0 -nostdlib -fpic -g ${FILES} ./stdlib/build/stdlib.elf
+	i686-elf-gcc -g -T ./linker.ld -o ./build/blank.elf -ffreestanding -O0 -nostdlib -fpic -g ${FILES} ../stdlib/build/stdlib.elf
 
-./build/blank.o: ./blank/blank.c
-	i686-elf-gcc $(INCLUDES) -I./blank $(FLAGS) -std=gnu99 -c ./blank/blank.c -o ./build/blank.o
+./build/blank.o: ./src/blank.c
+	i686-elf-gcc $(INCLUDES) -I./src $(FLAGS) -std=gnu99 -c ./src/blank.c -o ./build/blank.o
 
 
 

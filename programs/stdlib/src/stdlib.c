@@ -22,7 +22,7 @@ char* itoa( int i)
 
     if(loc == 11)
     {
-        text[--loc] == '0';
+        text[--loc] = '0';
     }
     if(neg)
     {

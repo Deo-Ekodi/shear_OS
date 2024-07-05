@@ -7,6 +7,7 @@ int main(int argc, char** argv)
     print("Hello, program active\n");
 
     print(itoa(928));
+    printf("\nOhh damn! printf just worked!");
     putchar('z');
     void* ptr = malloc(512);
     free(ptr);

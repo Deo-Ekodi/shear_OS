@@ -6,6 +6,7 @@ global shearos_getkey:function
 global shearos_malloc:function
 global shearos_free:function
 global shearos_putchar:function
+global shearos_process_load_start:function
 
 print:
     push ebp
@@ -51,6 +52,16 @@ shearos_free:
     push ebp
     mov ebp, esp
     mov eax ,5
+    push dword[ebp+8]
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
+shearos_process_load_start:
+    push ebp
+    mov ebp, esp
+    mov eax, 6
     push dword[ebp+8]
     int 0x80
     add esp, 4

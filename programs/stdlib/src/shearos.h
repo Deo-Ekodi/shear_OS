@@ -11,5 +11,6 @@ void shearos_free(void* ptr);
 void shearos_putchar(char c);
 int shearos_getkeyblock();
 void shearos_terminal_readline(char* out, int max, bool output_while_typing);
+void shearos_process_load_start(const char* filename);
 
 #endif

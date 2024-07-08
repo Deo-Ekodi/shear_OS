@@ -1,6 +1,6 @@
-#include "stdio.h"
-#include "shearos.h"
-#include "stdlib.h"
+#include "../header/stdio.h"
+#include "../header/shearos.h"
+#include "../header/stdlib.h"
 #include <stdarg.h>
 
 int putchar(int charx)
@@ -27,10 +27,19 @@ int printf(const char *fmt, ...)
 
         switch (*++p)
         {
+        /**
+         * %i
+         * format for integers
+         */
         case 'i':
             ival = va_arg(ap, int);
             print(itoa(ival));
             break;
+        
+        /**
+         * %s
+         * format for strings
+         */
         case 's':
             sval = va_arg(ap, char *);
             print(sval);

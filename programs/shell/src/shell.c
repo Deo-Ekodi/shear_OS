@@ -1,11 +1,11 @@
-#include "shell.h"
-#include "../../stdlib/src/stdio.h"
-#include "../../stdlib/src/stdlib.h"
-#include "../../stdlib/src/shearos.h"
+#include "../header/shell.h"
+#include "../../stdlib/header/stdio.h"
+#include "../../stdlib/header/stdlib.h"
+#include "../../stdlib/header/shearos.h"
 
 int main(int argc, char** argv)
 {
-    print("shearOS v1.0.0\n");
+    print("\nshearOS v1.0.0\n");
 
     while(1){
         print("> ");

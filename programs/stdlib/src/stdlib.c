@@ -1,6 +1,7 @@
 #include <stddef.h>
-#include "stdlib.h"
-#include "shearos.h"
+#include "../header/stdlib.h"
+#include "../header/shearos.h"
+#include "../header/memory.h"
 
 char* itoa( int i)
 {

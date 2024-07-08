@@ -1,7 +1,7 @@
-#include "../../stdlib/src/shearos.h"
-#include "../../stdlib/src/stdlib.h"
-#include "../../stdlib/src/stdio.h"
-#include "../../stdlib/src/string.h"
+#include "../../stdlib/header/shearos.h"
+#include "../../stdlib/header/stdlib.h"
+#include "../../stdlib/header/stdio.h"
+#include "../../stdlib/header/string.h"
 
 
 int main(int argc, char** argv)

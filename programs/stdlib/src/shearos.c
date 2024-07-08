@@ -1,7 +1,7 @@
 
 #include <stdbool.h>
 
-#include "shearos.h"
+#include "../header/shearos.h"
 
 int shearos_getkeyblock()
 {

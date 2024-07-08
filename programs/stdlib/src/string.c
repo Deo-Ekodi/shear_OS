@@ -1,4 +1,6 @@
-#include "string.h"
+#include "../header/string.h"
+
+#include <stdbool.h>
 
 
 char tolower(char s1)

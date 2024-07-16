@@ -10,6 +10,7 @@ enum SystemCommands
     SYSTEM_COMMAND4_MALLOC,
     SYSTEM_COMMAND5_FREE,
     SYSTEM_COMMAND6_PROCESS_LOAD_START,
+    SYSTEM_COMMAND7_SYSTEM_COMMAND,
 };
 
 void isr80h_register_commands();

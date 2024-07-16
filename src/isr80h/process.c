@@ -34,3 +34,8 @@ void *isr80h_command6_process_load_start(struct interrupt_frame *frame)
 out:
     return 0;
 }
+
+void* isr80h_command7_invoke_system_command(struct interrupt_frame* frame)
+{
+    return 0;
+}

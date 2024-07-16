@@ -6,17 +6,10 @@
 
 int main(int argc, char** argv)
 {
-    char words[] = "hello guy!!";
-    const char* token = strtok(words, " ");
+    char* ptr = malloc(20);
+    strcpy(ptr, "hello kernel!");
 
-    while(token)
-    {
-        printf("%s\n", token);
-        token = strtok(NULL, " ");
-    }
-    ;
-    printf("\nOhh damn! printf just worked!\n");
-
+    print(ptr);
     while(1){
     }
     return 0;

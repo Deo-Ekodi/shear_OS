@@ -382,10 +382,11 @@ void process_free(struct process* process, void* ptr)
     kfree(ptr);
 }
 
-void process_get_arguments(struct process* process, int* argc, char**argv)
+void process_get_arguments(struct process* process, int* argc, char** argv)
 {
     *argc = process->arguments.argc;
-    *argv = process->arguments.argv;
+    argv = process->arguments.argv;
+    // *argv = process->arguments.argv;
 }
 
 int process_count_command_arguments(struct command_argument* root_argument)

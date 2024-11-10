@@ -11,6 +11,6 @@ all: ${FILES}
 
 
 clean:
-# rm -r ./build/*
-	rm -r ./build/*.elf
+	rm -r ./build/*
+# rm -r ./build/*.elf
 	rm -rf ${FILES}

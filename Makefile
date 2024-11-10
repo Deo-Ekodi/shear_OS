@@ -146,5 +146,3 @@ clean: user_programs_clean
 	rm -r build/loader/formats/*
 
 	clear
-
-# rm -r ${FILES}

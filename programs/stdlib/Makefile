@@ -30,4 +30,5 @@ all: ${FILES}
 
 clean:
 	rm -rf ${FILES}
-	rm ./build/*.elf
+	rm ./build/*
+# rm ./build/*.elf
